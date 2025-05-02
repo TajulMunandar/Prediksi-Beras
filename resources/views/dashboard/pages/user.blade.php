@@ -77,6 +77,13 @@
                                 <label>Email</label>
                                 <input type="email" name="email" value="{{ $user->email }}" class="form-control">
                             </div>
+                            <div class="form-group">
+                                <label for="isAdmin">Role</label>
+                                <select class="form-control" id="isAdmin" name="isAdmin" required>
+                                    <option value="1" {{ $user->isAdmin == 1 ? 'selected' : '' }}>Admin</option>
+                                    <option value="2" {{ $user->isAdmin == 2 ? 'selected' : '' }}>User</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
@@ -130,6 +137,13 @@
                         <div class="mb-3">
                             <label>Password</label>
                             <input type="password" name="password" class="form-control" required tabindex="3">
+                        </div>
+                        <div class="form-group">
+                            <label for="isAdmin">Role</label>
+                            <select class="form-control" id="isAdmin" name="isAdmin" required>
+                                <option value="1">Admin</option>
+                                <option value="2">User</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">

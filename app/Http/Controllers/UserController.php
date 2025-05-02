@@ -37,12 +37,14 @@ class UserController extends Controller
                 'name' => 'required',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:6',
+                'isAdmin' => 'required',
             ]);
 
             User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'isAdmin' => $request->isAdmin,
             ]);
 
             return back()->with('success', 'User berhasil ditambahkan');
@@ -78,9 +80,10 @@ class UserController extends Controller
             $request->validate([
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email,' . $user->id,
+                'isAdmin' => 'required',
             ]);
 
-            $user->update($request->only('name', 'email'));
+            $user->update($request->only('name', 'email', 'isAdmin'));
 
             return back()->with('success', 'User berhasil diupdate');
         } catch (Exception $e) {

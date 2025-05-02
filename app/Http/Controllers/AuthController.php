@@ -40,6 +40,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'isAdmin' => 2,
         ]);
 
         // Redirect to login page
