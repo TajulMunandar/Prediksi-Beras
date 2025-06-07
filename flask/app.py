@@ -108,6 +108,64 @@ def predict_price():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/predict-batch", methods=["POST"])
+def predict_batch():
+    try:
+        data_list = request.json  # List of input data
+
+        results = []
+
+        for data in data_list:
+            beras_id = data.get("beras_id")
+            nama_beras = data.get("nama_beras")
+            kualitas = data.get("kualitas")
+            tahun = int(data.get("tahun"))
+            bulan_str = data.get("bulan")
+            hari_besar = int(data.get("hari_besar"))
+            curah_hujan = float(data.get("curah_hujan"))
+            suhu = float(data.get("suhu"))
+            kelembaban = float(data.get("kelembaban"))
+
+            if bulan_str not in bulan_mapping:
+                continue  # skip jika bulan tidak valid
+
+            bulan = bulan_mapping[bulan_str]
+            encoded_nama_beras = le.transform([nama_beras])[0]
+
+            data_baru = pd.DataFrame(
+                [
+                    {
+                        "Tahun": tahun,
+                        "Bulan": bulan,
+                        "Nama_Beras_Encoded": encoded_nama_beras,
+                        "Hari_Besar": hari_besar,
+                        "Curah_Hujan": curah_hujan,
+                        "Suhu": suhu,
+                        "Kelembaban": kelembaban,
+                        "Bulan_Tahun": int(f"{tahun}{bulan:02d}"),
+                    }
+                ]
+            )
+
+            prediksi = model.predict(data_baru)
+
+            results.append(
+                {
+                    "beras_id": beras_id,
+                    "nama_beras": nama_beras,
+                    "kualitas": kualitas,
+                    "tahun": tahun,
+                    "bulan": bulan_str,
+                    "prediksi_harga": int(prediksi[0]),
+                }
+            )
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/train", methods=["POST"])
 def prediksi_bulanan():
     try:

@@ -53,7 +53,7 @@
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Data Prediksi User</p>
                                 <h5 class="font-weight-bolder">
-                                    {{ $prediksi }} Prediksi
+                                    Prediksi
                                 </h5>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
         <div class="col-lg-12 mb-lg-0 mb-4">
             <div class="card z-index-2 h-100">
                 <div class="card-header pb-0 pt-3 bg-transparent">
-                    <h6 class="text-capitalize">Data Prediksi User</h6>
+                    <h6 class="text-capitalize">Data Prediksi Beras</h6>
 
                 </div>
                 <div class="card-body p-3">
@@ -86,39 +86,41 @@
 
 @section('script')
     <script>
-        var dates = @json($dates); // Array of dates
-        var dateCounts = @json($dateCounts); // Object containing the count for each date
+        const prediksiPerBeras = @json($prediksiPerBeras);
         var ctx1 = document.getElementById("chart-line").getContext("2d");
 
-        var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
+        var labels = Object.values(prediksiPerBeras)[0].map(item => item.bulan); // ambil label dari beras pertama
 
-        gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
-        gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
-        gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
+        var colors = ['#5e72e4', '#f5365c', '#2dce89', '#11cdef', '#fb6340']; // kamu bisa tambah warna sesuai jumlah beras
+
+        var datasets = Object.entries(prediksiPerBeras).map(([key, data], index) => {
+            // key contoh: "Beras A|Premium"
+            var [namaBeras, kualitas] = key.split('|');
+
+            return {
+                label: `${namaBeras} (${kualitas})`, // tampilkan kualitas di label
+                data: data.map(item => item.harga),
+                borderColor: colors[index % colors.length],
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+            };
+        });
+
         new Chart(ctx1, {
             type: "line",
             data: {
-                labels: dates,
-                datasets: [{
-                    label: "Jumlah Prediksi",
-                    tension: 0.4,
-                    borderWidth: 0,
-                    pointRadius: 0,
-                    borderColor: "#5e72e4",
-                    backgroundColor: gradientStroke1,
-                    borderWidth: 3,
-                    fill: true,
-                    data: dates.map(date => dateCounts[date] || 0),
-                    maxBarThickness: 6
-
-                }],
+                labels: labels,
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false,
+                        display: true,
+                        position: 'top'
                     }
                 },
                 interaction: {
@@ -127,47 +129,24 @@
                 },
                 scales: {
                     y: {
-                        grid: {
-                            drawBorder: false,
-                            display: true,
-                            drawOnChartArea: true,
-                            drawTicks: false,
-                            borderDash: [5, 5]
-                        },
+                        beginAtZero: true,
                         ticks: {
-                            display: true,
-                            padding: 10,
-                            color: '#fbfbfb',
-                            font: {
-                                size: 11,
-                                family: "Open Sans",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
+                            color: '#444'
+                        },
+                        grid: {
+                            borderDash: [5, 5]
                         }
                     },
                     x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                            borderDash: [5, 5]
-                        },
                         ticks: {
-                            display: true,
-                            color: '#ccc',
-                            padding: 20,
-                            font: {
-                                size: 11,
-                                family: "Open Sans",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
+                            color: '#444'
+                        },
+                        grid: {
+                            borderDash: [5, 5]
                         }
-                    },
-                },
-            },
+                    }
+                }
+            }
         });
     </script>
 @endsection

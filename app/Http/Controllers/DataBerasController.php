@@ -31,11 +31,13 @@ class DataBerasController extends Controller
             // Validasi input dari pengguna
             $request->validate([
                 'nama_beras' => 'required|string|max:255',
+                'kualitas' => 'required|string|max:255',
             ]);
 
             // Menyimpan data beras
             Beras::create([
                 'nama_beras' => $request->nama_beras,
+                'kualitas' => $request->kualitas,
             ]);
 
             // Redirect kembali dengan pesan sukses
@@ -71,6 +73,7 @@ class DataBerasController extends Controller
             // Validasi input dari pengguna
             $request->validate([
                 'nama_beras' => 'required|string|max:255',
+                'kualitas' => 'required|string|max:255',
             ]);
 
             // Mencari data beras yang ingin diupdate
@@ -79,6 +82,7 @@ class DataBerasController extends Controller
             // Melakukan pembaruan data beras
             $beras->update([
                 'nama_beras' => $request->nama_beras,
+                'kualitas' => $request->kualitas,
             ]);
 
             // Redirect kembali dengan pesan sukses

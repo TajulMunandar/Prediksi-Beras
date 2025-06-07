@@ -38,6 +38,7 @@
                         <tr>
                             <th>No</th>
                             <th>Nama Beras</th>
+                            <th>Kualitas</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -46,6 +47,7 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $berasItem->nama_beras }}</td>
+                                <td>{{ $berasItem->kualitas }}</td>
                                 <td>
                                     <button class="btn btn-warning" data-bs-toggle="modal"
                                         data-bs-target="#editBerasModal{{ $berasItem->id }}">Edit</button>
@@ -74,12 +76,18 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
+                            <div>
                                 <label>Nama Beras</label>
                                 <input type="text" name="nama_beras" value="{{ $berasItem->nama_beras }}"
                                     class="form-control" required>
                             </div>
+                            <div class="mb-3">
+                                <label>Kualitas</label>
+                                <input type="text" name="kualitas" value="{{ $berasItem->kualitas }}"
+                                    class="form-control" required>
+                            </div>
                         </div>
+
                         <div class="modal-footer">
                             <button class="btn btn-primary">Update</button>
                         </div>
@@ -98,9 +106,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
+                        <div>
                             <label>Nama Beras</label>
                             <input type="text" name="nama_beras" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Kualitas</label>
+                            <input type="text" name="kualitas" class="form-control" required>
                         </div>
                     </div>
                     <div class="modal-footer">

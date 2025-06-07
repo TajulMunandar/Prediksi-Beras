@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Beras;
 use App\Models\DataBeras;
 use App\Models\PrediksiDataBaru;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
@@ -18,21 +20,100 @@ class DashboardController extends Controller
         $page = 'Dashboard';
         $user = User::count();
         $beras = DataBeras::count();
-        $prediksi = PrediksiDataBaru::count();
-        $oneWeekAgo = Carbon::now()->subWeek(); // Get the date for one week ago
-        $dates = []; // Array to store date counts
-        $dateCounts = []; // Array to store the counts for each day
+        $semuaBeras = Beras::all();
+        $tahun = now()->year;
+        $bulan_sekarang = now()->month;
 
-        // Loop through each day of the last 7 days and count records
-        for ($i = 0; $i < 7; $i++) {
-            $date = $oneWeekAgo->copy()->addDays($i)->format('Y-m-d'); // Get the date for each day
-            $dates[] = $date; // Store the date
+        $prediksiPerBeras = [];
 
-            // Count the number of predictions for this day
-            $count = PrediksiDataBaru::whereDate('tanggal_input', '=', $date)->count();
-            $dateCounts[$date] = $count; // Store the count for this date
+        foreach ($semuaBeras as $berasItem) {
+            $namaBeras = $berasItem->nama_beras; // Pastikan nama kolomnya sesuai
+            $kualitas = $berasItem->kualitas; // Pastikan nama kolomnya sesuai
+            $berasId = $berasItem->id;
+
+            $prediksiBulan = [];
+
+            $tahunTerakhir = DataBeras::where('beras_id', $berasId)
+                ->max('tahun'); // Tahun paling akhir
+
+            // Ambil data 12 bulan terakhir, bisa melewati tahun (ambil berdasarkan tahun & bulan)
+            $data12BulanTerakhir = DataBeras::where('beras_id', $berasId)
+                ->where(function ($query) use ($tahunTerakhir) {
+                    // Ambil data dari tahun terakhir dan mungkin tahun sebelumnya,
+                    // untuk memastikan dapat 12 data bulan
+                    $query->where('tahun', $tahunTerakhir)
+                        ->orWhere('tahun', $tahunTerakhir - 1);
+                })
+                ->orderByDesc('tahun')
+                ->orderByDesc('bulan')
+                ->limit(12)
+                ->get()
+                ->sortBy(function ($item) {
+                    // Supaya data terurut dari bulan paling lama ke terbaru
+                    return $item->tahun * 100 + $item->bulan;
+                })
+                ->values();
+
+            foreach ($data12BulanTerakhir as $dataBulan) {
+                $bulan = $dataBulan->bulan;
+                $tahun = $dataBulan->tahun;
+
+                $hari_besar = $dataBulan->hari_besar ?? 0;
+                $curah_hujan = $dataBulan->curah_hujan ?? 150;
+                $suhu = $dataBulan->suhu ?? 30;
+                $kelembaban = $dataBulan->kelembaban ?? 80;
+
+                $semuaPrediksiInput[] = [
+                    'beras_id' => $berasId,
+                    'nama_beras' => $namaBeras,
+                    'kualitas' => $kualitas,
+                    'tahun' => $tahun,
+                    'bulan' => $this->namaBulan($bulan),
+                    'hari_besar' => $hari_besar,
+                    'curah_hujan' => $curah_hujan,
+                    'suhu' => $suhu,
+                    'kelembaban' => $kelembaban,
+                ];
+            }
         }
-        return view('dashboard.pages.index')->with(compact('page', 'user', 'beras', 'prediksi',  'dates', 'dateCounts'));
+        $response = Http::post('http://localhost:5000/predict-batch', $semuaPrediksiInput);
+        $prediksiPerBeras = [];
+        if ($response->successful()) {
+            $results = $response->json();
+
+            foreach ($results as $result) {
+                $key = $result['nama_beras'] . '|' . $result['kualitas'];
+                if (!isset($prediksiPerBeras[$key])) {
+                    $prediksiPerBeras[$key] = [];
+                }
+
+                $prediksiPerBeras[$key][] = [
+                    'bulan' => $result['bulan'],
+                    'harga' => $result['prediksi_harga'],
+                ];
+            }
+        }
+
+        return view('dashboard.pages.index')->with(compact('page', 'user', 'beras', 'prediksiPerBeras'));
+    }
+
+    public function namaBulan($bulanAngka)
+    {
+        $nama = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+        return $nama[$bulanAngka];
     }
 
     /**
