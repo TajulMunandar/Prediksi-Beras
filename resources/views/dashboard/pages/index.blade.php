@@ -53,7 +53,7 @@
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Data Prediksi User</p>
                                 <h5 class="font-weight-bolder">
-                                    Prediksi
+                                    {{ $prediksiDataBaru }}
                                 </h5>
                             </div>
                         </div>

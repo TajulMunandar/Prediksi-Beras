@@ -19,6 +19,7 @@ class DashboardController extends Controller
     {
         $page = 'Dashboard';
         $user = User::count();
+        $prediksiDataBaru = PrediksiDataBaru::count();
         $beras = DataBeras::count();
         $semuaBeras = Beras::all();
         $tahun = now()->year;
@@ -94,7 +95,7 @@ class DashboardController extends Controller
             }
         }
 
-        return view('dashboard.pages.index')->with(compact('page', 'user', 'beras', 'prediksiPerBeras'));
+        return view('dashboard.pages.index')->with(compact('page', 'user', 'beras', 'prediksiPerBeras', 'prediksiDataBaru'));
     }
 
     public function namaBulan($bulanAngka)
