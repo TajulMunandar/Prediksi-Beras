@@ -74,6 +74,7 @@ class DashboardController extends Controller
                     'curah_hujan' => $curah_hujan,
                     'suhu' => $suhu,
                     'kelembaban' => $kelembaban,
+                    'harga_aktual' => $dataBulan->harga ?? null,
                 ];
             }
         }
@@ -82,7 +83,8 @@ class DashboardController extends Controller
         if ($response->successful()) {
             $results = $response->json();
 
-            foreach ($results as $result) {
+            foreach ($results as $index => $result) {
+                $input = $semuaPrediksiInput[$index];
                 $key = $result['nama_beras'] . '|' . $result['kualitas'];
                 if (!isset($prediksiPerBeras[$key])) {
                     $prediksiPerBeras[$key] = [];
@@ -91,6 +93,7 @@ class DashboardController extends Controller
                 $prediksiPerBeras[$key][] = [
                     'bulan' => $result['bulan'],
                     'harga' => $result['prediksi_harga'],
+                    'harga_aktual' => $result['harga_aktual'] ?? null,
                 ];
             }
         }

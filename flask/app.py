@@ -125,6 +125,7 @@ def predict_batch():
             curah_hujan = float(data.get("curah_hujan"))
             suhu = float(data.get("suhu"))
             kelembaban = float(data.get("kelembaban"))
+            harga_aktual = data.get("harga_aktual")
 
             if bulan_str not in bulan_mapping:
                 continue  # skip jika bulan tidak valid
@@ -157,6 +158,7 @@ def predict_batch():
                     "tahun": tahun,
                     "bulan": bulan_str,
                     "prediksi_harga": int(prediksi[0]),
+                    "harga_aktual": harga_aktual,
                 }
             )
 

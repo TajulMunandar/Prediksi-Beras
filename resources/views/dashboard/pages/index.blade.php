@@ -91,21 +91,37 @@
 
         var labels = Object.values(prediksiPerBeras)[0].map(item => item.bulan); // ambil label dari beras pertama
 
-        var colors = ['#5e72e4', '#f5365c', '#2dce89', '#11cdef', '#fb6340']; // kamu bisa tambah warna sesuai jumlah beras
+        var colors = ['#5e72e4', '#f5365c', '#2dce89', '#11cdef', '#fb6340']; // warna prediksi
+        var actualColors = ['#8898aa', '#d3a625', '#00b894', '#6c5ce7', '#e17055']; // warna untuk data aktual
 
-        var datasets = Object.entries(prediksiPerBeras).map(([key, data], index) => {
+        var datasets = [];
+
+        Object.entries(prediksiPerBeras).forEach(([key, data], index) => {
             // key contoh: "Beras A|Premium"
             var [namaBeras, kualitas] = key.split('|');
 
-            return {
-                label: `${namaBeras} (${kualitas})`, // tampilkan kualitas di label
+            // dataset untuk prediksi
+            datasets.push({
+                label: `${namaBeras} (${kualitas}) - Prediksi`,
                 data: data.map(item => item.harga),
                 borderColor: colors[index % colors.length],
                 backgroundColor: 'transparent',
                 borderWidth: 2,
                 tension: 0.4,
                 fill: false,
-            };
+            });
+
+            // dataset untuk harga aktual
+            datasets.push({
+                label: `${namaBeras} (${kualitas}) - Aktual`,
+                data: data.map(item => item.harga_aktual),
+                borderColor: actualColors[index % actualColors.length],
+                backgroundColor: 'transparent',
+                borderDash: [5, 5],
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+            });
         });
 
         new Chart(ctx1, {
